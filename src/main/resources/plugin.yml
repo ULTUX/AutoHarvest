@@ -1,0 +1,11 @@
+main: codes.ultux.mc.autoharvest.Main
+name: AutoHarvest
+version: 1.0
+permissions:
+  autoharvest.harvest:
+    description: Allows player to auto-harvest
+    default: false
+  autoharvest.choptree:
+    description: Allows player to automatically chop the trees.
+    default: false
+api-version: 1.16
