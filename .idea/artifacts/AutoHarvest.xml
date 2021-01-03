@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="AutoHarvest">
-    <output-path>$USER_HOME$/Desktop/1.16/plugins</output-path>
-    <root id="archive" name="AutoHarvest.jar">
-      <element id="module-output" name="AutoHarvest" />
-    </root>
-  </artifact>
-</component>
