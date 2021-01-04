@@ -1,12 +1,11 @@
 package codes.ultux.mc.autoharvest;
 
+import codes.ultux.mc.autoharvest.Exceptions.TreeNotFoundException;
 import org.bukkit.Axis;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Orientable;
-import org.bukkit.block.data.Rotatable;
 import org.bukkit.block.data.type.Leaves;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;

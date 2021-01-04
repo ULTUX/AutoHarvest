@@ -1,6 +1,7 @@
-package codes.ultux.mc.autoharvest;
+package codes.ultux.mc.autoharvest.Events;
 
 
+import codes.ultux.mc.autoharvest.DataProvider;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;

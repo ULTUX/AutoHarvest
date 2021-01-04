@@ -1,5 +1,7 @@
 package codes.ultux.mc.autoharvest;
 
+import codes.ultux.mc.autoharvest.Events.BlockClickEventListener;
+import codes.ultux.mc.autoharvest.Events.TreeChopEventListener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {

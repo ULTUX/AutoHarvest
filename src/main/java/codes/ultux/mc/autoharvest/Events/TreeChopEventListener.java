@@ -1,6 +1,8 @@
-package codes.ultux.mc.autoharvest;
+package codes.ultux.mc.autoharvest.Events;
 
 
+import codes.ultux.mc.autoharvest.Main;
+import codes.ultux.mc.autoharvest.Tree;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -10,11 +12,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.lang.reflect.Array;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class TreeChopEventListener implements Listener {
