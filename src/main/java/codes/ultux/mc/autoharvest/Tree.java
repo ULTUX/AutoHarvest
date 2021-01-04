@@ -207,7 +207,7 @@ public class Tree {
             ArrayList<Block> list = findNeighbourLogs(block, true, queue);
             queue.addAll(list);
         }
-        logs = new ArrayList<Block>(queue);
+        logs = new ArrayList<>(queue);
 
     }
 
