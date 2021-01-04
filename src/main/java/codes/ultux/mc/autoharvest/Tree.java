@@ -6,9 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Orientable;
 import org.bukkit.block.data.type.Leaves;
-
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Logger;
 
@@ -27,6 +25,7 @@ public class Tree {
      * All materials that the tree can grow on.
      */
     private static final ArrayList<Material> groundMaterials = DataProvider.getAllTreeGroundMaterials();
+
 
     /**
      * All trunk base blocks of the tree
@@ -48,8 +47,6 @@ public class Tree {
         if (allLogTypes.contains(block.getType())){
             getAllTrunkBlocks(block);
             searchForTree();
-
-
         }
     }
 
@@ -60,8 +57,7 @@ public class Tree {
      */
     public static Tree getTree(Block block){
         try {
-            Tree tree = new Tree(block);
-            return tree;
+            return new Tree(block);
         } catch (TreeNotFoundException e) {
             logger.info(e.getMessage());
         }
@@ -84,30 +80,6 @@ public class Tree {
             }
         }
         return isNeighbour;
-    }
-
-    /**
-     *
-     * @param block Check if given block is a neighbour to any logs.
-     * @param isLog If the argument block is a log, make sure the neighbour logs are the same type.
-     * @param notHere A collection of blocks excluded from search.
-     * @return ArrayList of neighbour logs.
-     */
-    private static ArrayList<Block> findNeighbourLogs(Block block, boolean isLog, Collection<Block> notHere){
-        ArrayList<Block> blocks = new ArrayList<>();
-        for (int xi = -1; xi < 2; xi++){
-            for (int yi = 0; yi < 2; yi++){
-                for (int zi = -1; zi < 2; zi++){
-                    if (zi == 0 && xi == 0 && yi == 0) continue;
-                    org.bukkit.block.Block checkedBlock = block.getRelative(xi,yi,zi);
-                    if (allLogTypes.contains(checkedBlock.getType()) && !notHere.contains(checkedBlock)){
-                        if (isLog && block.getType().equals(checkedBlock.getType())) blocks.add(checkedBlock);
-                        else if (!isLog) blocks.add(checkedBlock);
-                    }
-                }
-            }
-        }
-        return blocks;
     }
 
 
@@ -192,7 +164,7 @@ public class Tree {
                 if (!((Orientable)lastBlock.getBlockData()).getAxis().equals(Axis.Y)) throw new TreeNotFoundException("One of tree main branches is rotated wrongly.");
                 logs.add(lastBlock);
                 if (followingBlock.getType().equals(block.getType())){
-                    logs.addAll(findNeighbourLogs(followingBlock, true, logs));
+                    logs.addAll(Utils.findNeighbourBlocks(followingBlock, allLogTypes, logs));
                     if (isLeafNeighbour(followingBlock)) hasLeaves = true;
                 }
                 lastBlock = followingBlock;
@@ -204,14 +176,21 @@ public class Tree {
         ConcurrentLinkedDeque<Block> queue = new ConcurrentLinkedDeque<>(logs);
 
         for (Block block : queue){
-            ArrayList<Block> list = findNeighbourLogs(block, true, queue);
+            ArrayList<Block> list = Utils.findNeighbourBlocks(block, allLogTypes, queue);
             queue.addAll(list);
         }
         logs = new ArrayList<>(queue);
 
     }
 
+    private void getLeaves(){
+
+    }
+
+
+
     public ArrayList<Block> getLogs() {
         return logs;
     }
+
 }
