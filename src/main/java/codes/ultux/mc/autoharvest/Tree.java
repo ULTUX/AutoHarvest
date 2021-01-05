@@ -16,7 +16,7 @@ public class Tree {
     /**
      * All log types
      */
-    private static final ArrayList<Material> allLogTypes = DataProvider.getAllLogTypes();
+    public static final ArrayList<Material> allLogTypes = DataProvider.getAllLogTypes();
     /**
      * All leaf materials.
      */
@@ -30,15 +30,15 @@ public class Tree {
     /**
      * All trunk base blocks of the tree
      */
-    private final ArrayList<Block> trunkBlocks = new ArrayList<>();
+    private final ConcurrentLinkedDeque<Block> trunkBlocks = new ConcurrentLinkedDeque<>();
     /**
      * All detected logs of the tree
      */
-    private ArrayList<Block> logs = new ArrayList<>();
+    private ConcurrentLinkedDeque<Block> logs = new ConcurrentLinkedDeque<>();
     /**
      * All detected leaves of the tree
      */
-    private final ArrayList<Block> leaves = new ArrayList<>();
+    private final ConcurrentLinkedDeque<Block> leaves = new ConcurrentLinkedDeque<>();
 
     /**
      * Try to find a tree at given block.
@@ -47,6 +47,7 @@ public class Tree {
         if (allLogTypes.contains(block.getType())){
             getAllTrunkBlocks(block);
             searchForTree();
+            findLeaves();
         }
     }
 
@@ -63,6 +64,8 @@ public class Tree {
         }
         return null;
     }
+
+
 
     /**
      * Checks if block passed as arguments is a neighbour of any leaf block.
@@ -120,6 +123,7 @@ public class Tree {
                 for (Block block1 : possibleTrunkBlocks) {
                     for (int x = -1; x < 2; x++) {
                         for (int z = -1; z < 2; z++) {
+                            if (x == 0 && z == 0) continue;
                             if (!possibleTrunkBlocks.contains(block1.getRelative(x, 0, z)) && allLogTypes.contains(block1.getRelative(x, 0, z).getType()))
                                 throw new TreeNotFoundException("That trunk has some more logs surrounding it! That's not how trees grow.");
                         }
@@ -164,32 +168,39 @@ public class Tree {
                 if (!((Orientable)lastBlock.getBlockData()).getAxis().equals(Axis.Y)) throw new TreeNotFoundException("One of tree main branches is rotated wrongly.");
                 logs.add(lastBlock);
                 if (followingBlock.getType().equals(block.getType())){
-                    logs.addAll(Utils.findNeighbourBlocks(followingBlock, allLogTypes, logs));
+                    logs.addAll(Utils.findNeighbourBlocks(followingBlock, block.getType(), logs));
                     if (isLeafNeighbour(followingBlock)) hasLeaves = true;
                 }
                 lastBlock = followingBlock;
                 y++;
             }
         }
-        if (!hasLeaves && !trunkBlocks.get(0).getType().equals(Material.ACACIA_LOG)) throw new TreeNotFoundException("That tree's main branch does not touch any leaves. That's strange.");
+        if (!hasLeaves && !trunkBlocks.getFirst().getType().equals(Material.ACACIA_LOG)) throw new TreeNotFoundException("That tree's main branch does not touch any leaves. That's strange.");
         //Find the rest of tree's logs
         ConcurrentLinkedDeque<Block> queue = new ConcurrentLinkedDeque<>(logs);
 
         for (Block block : queue){
-            ArrayList<Block> list = Utils.findNeighbourBlocks(block, allLogTypes, queue);
+            ArrayList<Block> list = Utils.findNeighbourBlocks(block, block.getType(), queue);
             queue.addAll(list);
         }
-        logs = new ArrayList<>(queue);
+        logs = new ConcurrentLinkedDeque<>(queue);
 
     }
 
-    private void getLeaves(){
-
+    private void findLeaves(){
+        logs.forEach(block -> {
+            ArrayList<Block> treeBlocks = new ArrayList<>(logs);
+            treeBlocks.addAll(trunkBlocks);
+            ArrayList<Block> possibleLeaves = Utils.findNeighbourLeaves(block, Utils.getCorrespondingLeafType(block.getType()), leaves, treeBlocks);
+            leaves.addAll(possibleLeaves);
+        });
     }
 
+    public ConcurrentLinkedDeque<Block> getLeaves() {
+        return leaves;
+    }
 
-
-    public ArrayList<Block> getLogs() {
+    public ConcurrentLinkedDeque<Block> getLogs() {
         return logs;
     }
 

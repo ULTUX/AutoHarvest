@@ -24,7 +24,10 @@ public class TreeChopEventListener implements Listener {
             Tree choppedTree = Tree.getTree(event.getBlock());
             if (choppedTree != null){
                 choppedTree.getLogs().forEach(block -> {
-                    block.setType(Material.STONE);
+                    block.setType(Material.AIR);
+                });
+                choppedTree.getLeaves().forEach(block -> {
+                    block.setType(Material.AIR);
                 });
             }
         }
