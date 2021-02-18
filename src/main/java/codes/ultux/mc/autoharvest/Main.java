@@ -13,7 +13,8 @@ import java.util.EventListener;
 
 public class Main extends JavaPlugin {
     public static JavaPlugin instance;
-    private final Listener[] listeners = {new Animation(), new BlockClickEventListener(), new TreeChopEventListener()};
+    private Listener[] listeners;
+    public static Config config;
 
     @Override
     public void onDisable() {
@@ -23,9 +24,9 @@ public class Main extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+        config = new Config();
+        listeners = new Listener[]{new Animation(), new BlockClickEventListener(), new TreeChopEventListener()};
         Arrays.stream(listeners).forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
-
-
     }
 
 }

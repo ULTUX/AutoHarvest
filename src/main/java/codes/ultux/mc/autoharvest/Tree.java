@@ -51,6 +51,7 @@ public class Tree {
             searchForTree();
             findLeaves();
         }
+        else throw new TreeNotFoundException("That trunk block is not a trunk.");
     }
 
     /**
@@ -93,6 +94,7 @@ public class Tree {
      * @param block Block that that is one of trunk blocks.
      */
     private void getAllTrunkBlocks(Block block) throws TreeNotFoundException{
+        if (!DataProvider.getAllLogTypes().contains(block.getType())) throw new TreeNotFoundException("This is not tree trunk");
         if (!groundMaterials.contains(block.getRelative(0, -1, 0).getType())) throw new TreeNotFoundException("That tree is not growing on allowed surface.");
         Block diagonalTrunkBlock = null;
         int xi = -5, zi = -5;
