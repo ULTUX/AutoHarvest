@@ -1,6 +1,8 @@
 package codes.ultux.mc.autoharvest;
 
-import codes.ultux.mc.autoharvest.Exceptions.TreeNotFoundException;
+import codes.ultux.mc.autoharvest.exception.TreeNotFoundException;
+import codes.ultux.mc.autoharvest.util.DataProvider;
+import codes.ultux.mc.autoharvest.util.TreeUtils;
 import org.bukkit.Axis;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -168,7 +170,7 @@ public class Tree {
                 if (!((Orientable)lastBlock.getBlockData()).getAxis().equals(Axis.Y)) throw new TreeNotFoundException("One of tree main branches is rotated wrongly.");
                 logs.add(lastBlock);
                 if (followingBlock.getType().equals(block.getType())){
-                    logs.addAll(Utils.findNeighbourBlocks(followingBlock, block.getType(), logs));
+                    logs.addAll(TreeUtils.findNeighbourBlocks(followingBlock, block.getType(), logs));
                     if (isLeafNeighbour(followingBlock)) hasLeaves = true;
                 }
                 lastBlock = followingBlock;
@@ -180,7 +182,7 @@ public class Tree {
         ConcurrentLinkedDeque<Block> queue = new ConcurrentLinkedDeque<>(logs);
 
         for (Block block : queue){
-            ArrayList<Block> list = Utils.findNeighbourBlocks(block, block.getType(), queue);
+            ArrayList<Block> list = TreeUtils.findNeighbourBlocks(block, block.getType(), queue);
             queue.addAll(list);
         }
         logs = new ConcurrentLinkedDeque<>(queue);
@@ -191,7 +193,7 @@ public class Tree {
         logs.forEach(block -> {
             ArrayList<Block> treeBlocks = new ArrayList<>(logs);
             treeBlocks.addAll(trunkBlocks);
-            ArrayList<Block> possibleLeaves = Utils.findNeighbourLeaves(block, Utils.getCorrespondingLeafType(block.getType()), leaves, treeBlocks);
+            ArrayList<Block> possibleLeaves = TreeUtils.findNeighbourLeaves(block, TreeUtils.getCorrespondingLeafType(block.getType()), leaves, treeBlocks);
             leaves.addAll(possibleLeaves);
         });
     }

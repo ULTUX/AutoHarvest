@@ -1,4 +1,4 @@
-package codes.ultux.mc.autoharvest;
+package codes.ultux.mc.autoharvest.util;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -7,7 +7,7 @@ import org.bukkit.block.Block;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Utils {
+public class TreeUtils {
 
     /**
      * Get distance in XZ plane.
@@ -26,7 +26,7 @@ public class Utils {
      * @param notHere A collection of blocks excluded from search.
      * @return ArrayList of neighbour logs.
      */
-    static ArrayList<Block> findNeighbourBlocks(Block block, Material allowedType, Collection<Block> notHere){
+    public static ArrayList<Block> findNeighbourBlocks(Block block, Material allowedType, Collection<Block> notHere){
         ArrayList<Block> blocks = new ArrayList<>();
         for (int xi = -1; xi < 2; xi++){
             for (int yi = 0; yi < 2; yi++){
@@ -40,24 +40,14 @@ public class Utils {
         return blocks;
     }
 
-    static ArrayList<Block> findNeighbourLeaves(Block block, Material allowedType, Collection<Block> notHere, Collection<Block> logCollection){
+    public static ArrayList<Block> findNeighbourLeaves(Block block, Material allowedType, Collection<Block> notHere, Collection<Block> logCollection){
         ArrayList<Block> blocks = new ArrayList<>();
-        for (int xi = -2; xi < 3; xi++){
-            for (int yi = -2; yi < 5; yi++){
-                for (int zi = -2; zi < 3; zi++){
+        for (int xi = -3; xi < 4; xi++){
+            for (int yi = 0; yi < 4; yi++){
+                for (int zi = -3; zi < 4; zi++){
                     if (zi == 0 && xi == 0 && yi == 0) continue;
                     Block checkedBlock = block.getRelative(xi,yi,zi);
-                    boolean isOk = true;
-                    for (int xii = -2; xii < 3; xii++){
-                        for (int yii = -2; yii < 5; yii++){
-                            for (int zii = -2; zii < 3; zii++) {
-                                if (!logCollection.contains(checkedBlock.getRelative(xii, yii, zii)) && Tree.allLogTypes.contains(checkedBlock.getRelative(xii, yii, zii).getType())) {
-                                    isOk = false;
-                                }
-                            }
-                        }
-                    }
-                    if (isOk && allowedType.equals(checkedBlock.getType()) && !notHere.contains(checkedBlock)) blocks.add(checkedBlock);
+                    if (allowedType.equals(checkedBlock.getType()) && !notHere.contains(checkedBlock)) blocks.add(checkedBlock);
                 }
                 }
             }

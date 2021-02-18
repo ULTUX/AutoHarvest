@@ -1,0 +1,9 @@
+treeDrop:
+  GOLDEN_APPLE:
+    chance: 2.0
+    min: 1
+    max: 5
+    custom-name: "&6Really golden apple"
+    enchantments:
+      - DURABILITY: 2
+      - DIG_SPEED: 1

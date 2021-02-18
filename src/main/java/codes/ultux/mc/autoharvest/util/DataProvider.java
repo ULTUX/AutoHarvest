@@ -1,4 +1,4 @@
-package codes.ultux.mc.autoharvest;
+package codes.ultux.mc.autoharvest.util;
 
 import org.bukkit.Material;
 
