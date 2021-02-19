@@ -3,6 +3,7 @@ package codes.ultux.mc.autoharvest.event;
 import codes.ultux.mc.autoharvest.util.DataProvider;
 import codes.ultux.mc.autoharvest.Main;
 import codes.ultux.mc.autoharvest.Tree;
+import codes.ultux.mc.autoharvest.util.LootGenerator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -21,7 +22,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Animation implements Listener {
-    ArrayList<FallingBlock> currentBlockAnimations = new ArrayList<>();
+    static ArrayList<FallingBlock> currentBlockAnimations = new ArrayList<>();
     ConcurrentLinkedQueue<Block> logSpawnQueue = new ConcurrentLinkedQueue<>();
     ConcurrentLinkedQueue<Block> leafSpawnQueue = new ConcurrentLinkedQueue<>();
 
@@ -32,7 +33,13 @@ public class Animation implements Listener {
     public Animation() {
     }
 
-    private void animate(Collection<Block> logs, Collection<Block> leaves, Location reference) {
+    /**
+     * Start animation
+     * @param logs Logs that build this tree.
+     * @param leaves Leaves that build this tree.
+     * @param reference Reference location (location of block breaker).
+     */
+    public void animate(Collection<Block> logs, Collection<Block> leaves, Location reference) {
         Block[] logArray = logs.toArray(new Block[0]);
         Arrays.sort(logArray, Comparator.comparingInt(Block::getY));
         Block[] leafArray = (Block[]) leaves.toArray(new Block[0]);
@@ -42,17 +49,6 @@ public class Animation implements Listener {
         startSpawnFBlocks(reference);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        if (player.hasPermission("autoharvest.choptree") || player.isOp()) {
-            Tree choppedTree = Tree.getTree(event.getBlock());
-
-            if (choppedTree != null) {
-                animate(choppedTree.getLogs(), choppedTree.getLeaves(), event.getPlayer().getLocation());
-            }
-        }
-    }
 
     private void startSpawnFBlocks(Location reference) {
         Random random = new Random(24L);
