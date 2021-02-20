@@ -3,7 +3,12 @@ package codes.ultux.mc.autoharvest.event;
 import codes.ultux.mc.autoharvest.Tree;
 import codes.ultux.mc.autoharvest.util.DataProvider;
 import codes.ultux.mc.autoharvest.Main;
+<<<<<<< HEAD
 import codes.ultux.mc.autoharvest.util.TreeUtils;
+=======
+import codes.ultux.mc.autoharvest.Tree;
+import codes.ultux.mc.autoharvest.util.LootGenerator;
+>>>>>>> 9efdd5d603fa35914b2a7c2eafbfcefb4eb53d81
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -36,7 +41,13 @@ public class Animation implements Listener {
     public Animation() {
     }
 
-    private void animate(Collection<Block> logs, Collection<Block> leaves, Location reference) {
+    /**
+     * Start animation
+     * @param logs Logs that build this tree.
+     * @param leaves Leaves that build this tree.
+     * @param reference Reference location (location of block breaker).
+     */
+    public void animate(Collection<Block> logs, Collection<Block> leaves, Location reference) {
         Block[] logArray = logs.toArray(new Block[0]);
         Arrays.sort(logArray, Comparator.comparingInt(Block::getY));
         Block[] leafArray = (Block[]) leaves.toArray(new Block[0]);
