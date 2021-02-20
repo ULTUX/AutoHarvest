@@ -1,32 +1,36 @@
 package codes.ultux.mc.autoharvest.event;
 
+import codes.ultux.mc.autoharvest.Tree;
 import codes.ultux.mc.autoharvest.util.DataProvider;
 import codes.ultux.mc.autoharvest.Main;
-import codes.ultux.mc.autoharvest.Tree;
+import codes.ultux.mc.autoharvest.util.TreeUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
+import sun.util.resources.cldr.vi.TimeZoneNames_vi;
+
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Animation implements Listener {
-    ArrayList<FallingBlock> currentBlockAnimations = new ArrayList<>();
-    ConcurrentLinkedQueue<Block> logSpawnQueue = new ConcurrentLinkedQueue<>();
-    ConcurrentLinkedQueue<Block> leafSpawnQueue = new ConcurrentLinkedQueue<>();
+    static ArrayList<FallingBlock> currentBlockAnimations = new ArrayList<>();
+    ConcurrentLinkedQueue<Block> spawnQueue = new ConcurrentLinkedQueue<>();
+    Tree tree;
 
-    public Animation(Collection<Block> logs, Collection<Block> leaves, Location referenceLocation) {
-        animate(logs, leaves, referenceLocation);
+    public Animation(Tree tree, Location referenceLocation) {
+        this.tree = tree;
+        animate(tree.getLogs(), tree.getLeaves(), referenceLocation);
     }
 
     public Animation() {
@@ -37,110 +41,80 @@ public class Animation implements Listener {
         Arrays.sort(logArray, Comparator.comparingInt(Block::getY));
         Block[] leafArray = (Block[]) leaves.toArray(new Block[0]);
         Arrays.sort(leafArray, Comparator.comparingInt(Block::getY));
-        logSpawnQueue.addAll(Arrays.asList(logArray));
-        leafSpawnQueue.addAll(Arrays.asList(leafArray));
+        ArrayList<Block> tempArrayList = new ArrayList<>();
+        tempArrayList.addAll(Arrays.asList(logArray));
+        tempArrayList.addAll(Arrays.asList(leafArray));
+        Block[] tempArray = tempArrayList.toArray(new Block[0]);
+        Arrays.sort(tempArray, Comparator.comparingInt(Block::getY));
+        spawnQueue.addAll(Arrays.asList(tempArray));
         startSpawnFBlocks(reference);
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        if (player.hasPermission("autoharvest.choptree") || player.isOp()) {
-            Tree choppedTree = Tree.getTree(event.getBlock());
-
-            if (choppedTree != null) {
-                animate(choppedTree.getLogs(), choppedTree.getLeaves(), event.getPlayer().getLocation());
-            }
-        }
-    }
 
     private void startSpawnFBlocks(Location reference) {
         Random random = new Random(24L);
         ArrayList<FallingBlock> fallingBlocks = new ArrayList<>();
-
+        int min = reference.getBlockY();
+        Location trunkMiddleLocation = new Location(tree.getTrunkBlocks().getFirst().getWorld(), 0, 0, 0);
+        tree.getTrunkBlocks().forEach(block -> {
+            trunkMiddleLocation.add(TreeUtils.getMiddleLocation(block.getLocation()));
+        });
+        Location trunkMiddleLocation2 = TreeUtils.divideByScalar(trunkMiddleLocation, tree.getTrunkBlocks().size());
+        trunkMiddleLocation2.setY(0);
+        reference.setY(0);
         BukkitRunnable spawnLogTask = new BukkitRunnable() {
             @Override
             public void run() {
                 boolean spawnLeaves = false;
-                if (!logSpawnQueue.isEmpty()) {
-                    int min = logSpawnQueue.stream().min(Comparator.comparingInt(Block::getY)).get().getY();
-                    for (int i = 0; i < 3; i++) {
-                        if (logSpawnQueue.isEmpty()) break;
-                        else {
-                            Block block = logSpawnQueue.remove();
-                            Vector individualVelocity = block.getLocation().toVector().subtract(reference.toVector().setY(block.getY()));
-                            individualVelocity.add(new org.bukkit.util.Vector(0, 5, 0));
-                            individualVelocity.multiply(new org.bukkit.util.Vector(1, 0.1, 1));
-                            individualVelocity.normalize();
-                            individualVelocity.multiply(new Vector(1 + Math.pow((block.getY() - min), 2), 1, 1 + Math.pow((block.getY() - min), 2)));
-                            individualVelocity.multiply(0.05);
-                            individualVelocity.multiply(new Vector(0.75 + random.nextDouble() / 2, 0.75 + random.nextDouble() / 2, 0.75 + random.nextDouble() / 2));
-                            if (individualVelocity.length() > 0.8) individualVelocity.normalize().multiply(0.75);
-                            individualVelocity.setY(0.1);
-                            FallingBlock fBlock = block.getWorld().spawnFallingBlock(block.getLocation(), block.getBlockData());
-                            fallingBlocks.add(fBlock);
-                            currentBlockAnimations.add(fBlock);
-                            block.setType(Material.AIR);
-                            fBlock.setDropItem(false);
-                            fBlock.setVelocity(individualVelocity);
-                        }
+                if (!spawnQueue.isEmpty()) {
+                    int currentHeight = spawnQueue.peek() != null ? spawnQueue.peek().getY() : 0;
+                    while (!spawnQueue.isEmpty() && spawnQueue.peek().getY() == currentHeight) {
+                        Block block = spawnQueue.remove();
+                        Vector individualVelocity = trunkMiddleLocation2.toVector().subtract(reference.toVector());
+                        individualVelocity.normalize();
+                        individualVelocity.multiply(0.1);
+                        individualVelocity.multiply(new Vector(2*(1 + 1 +random.nextDouble()-0.5), 1 + 2*(random.nextDouble()-0.5), 1 + 2*(random.nextDouble()-0.5)));
+                        Location spawnLocation = TreeUtils.getMiddleLocation(block.getLocation());
+                        FallingBlock fBlock = block.getWorld().spawnFallingBlock(spawnLocation, block.getBlockData());
+                        fallingBlocks.add(fBlock);
+                        currentBlockAnimations.add(fBlock);
+                        block.setType(Material.AIR);
+                        fBlock.setDropItem(false);
+                        fBlock.setVelocity(individualVelocity);
                     }
-
-                } else spawnLeaves = true;
-                if (spawnLeaves) {
-                    if (!leafSpawnQueue.isEmpty()) {
-                        int min = leafSpawnQueue.stream().min(Comparator.comparingInt(Block::getY)).get().getY();
-                        for (int i = 0; i < 3; i++) {
-                            if (leafSpawnQueue.isEmpty()) {
-                                this.cancel();
-                            } else {
-                                Block block = leafSpawnQueue.remove();
-                                Vector individualVelocity = block.getLocation().toVector().subtract(reference.toVector().setY(block.getY()));
-                                individualVelocity.add(new org.bukkit.util.Vector(0, 5, 0));
-                                individualVelocity.multiply(new org.bukkit.util.Vector(1, 0.1, 1));
-                                individualVelocity.normalize();
-                                individualVelocity.multiply((block.getY() - min) * 4);
-                                individualVelocity.multiply(new Vector(1 + Math.pow((block.getY() - min), 2), 1, 1 + Math.pow((block.getY() - min), 2)));
-                                individualVelocity.multiply(new Vector(0.75 + random.nextDouble() / 2, 0.75 + random.nextDouble() / 2, 0.75 + random.nextDouble() / 2));
-                                if (individualVelocity.length() > 0.8) individualVelocity.normalize().multiply(0.75);
-                                individualVelocity.setY(0.1);
-                                FallingBlock fBlock = block.getWorld().spawnFallingBlock(block.getLocation(), block.getBlockData());
-                                currentBlockAnimations.add(fBlock);
-                                fallingBlocks.add(fBlock);
-                                fBlock.setVelocity(individualVelocity);
-                                block.setType(Material.AIR);
-                                fBlock.setDropItem(false);
-                            }
-                        }
-                    }
-                }
-                BukkitRunnable animationTask = new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        fallingBlocks.forEach(fallingBlock -> {
-                            if (fallingBlock.isDead()) {
-                                new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        fallingBlocks.remove(fallingBlock);
-                                    }
-                                }.runTaskLater(Main.instance, 10);
-                            }
-                        });
-                        if (fallingBlocks.isEmpty()) {
-                            this.cancel();
-                            return;
-                        }
-                        fallingBlocks.forEach(fallingBlock -> {
-                            fallingBlock.setVelocity(fallingBlock.getVelocity().add(new Vector(0, -0.0035, 0)));
-                        });
-                    }
-                };
-                animationTask.runTaskTimer(Main.instance, 0, 2);
-
+                } else this.cancel();
             }
         };
-        spawnLogTask.runTaskTimer(Main.instance, 0, 2);
+        BukkitRunnable animationTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                fallingBlocks.forEach(fallingBlock -> {
+                    if (fallingBlock.isDead()) {
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                fallingBlocks.remove(fallingBlock);
+                            }
+                        }.runTaskLater(Main.instance, 10);
+                    }
+                });
+                if (fallingBlocks.isEmpty()) {
+                    new BukkitRunnable() {
+                        final BukkitRunnable task = this;
+                        @Override
+                        public void run() {
+                            task.cancel();
+                        }
+                    }.runTaskLater(Main.instance, 200);
+                    return;
+                }
+                fallingBlocks.forEach(fallingBlock -> {
+                    fallingBlock.setVelocity(fallingBlock.getVelocity().add(new Vector(0, -0.3, 0)));
+                });
+            }
+        };
+        animationTask.runTaskTimer(Main.instance, 0, 1);
+        spawnLogTask.runTaskTimer(Main.instance, 0, 1);
     }
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onBlockChange (EntityChangeBlockEvent event){

@@ -24,7 +24,8 @@ public class TreeChopEventListener implements Listener {
         if (player.hasPermission("autoharvest.choptree") || player.isOp()){
             Tree choppedTree = Tree.getTree(event.getBlock());
             if (choppedTree != null){
-                new Animation(choppedTree.getLogs(), choppedTree.getLeaves(), event.getPlayer().getLocation());
+
+                new Animation(choppedTree, event.getPlayer().getLocation());
                 LootGenerator.getTreeLoot().forEach(itemStack -> {
                     event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), itemStack);
                 });

@@ -67,4 +67,17 @@ public class TreeUtils {
         }
         return null;
     }
+    public static Location getMiddleLocation(Location location){
+        int xSign = location.getBlockX()/Math.abs(location.getBlockX());
+        int ySign = location.getBlockY()/Math.abs(location.getBlockY());
+        int zSign = location.getBlockZ()/Math.abs(location.getBlockZ());
+
+        return new Location(location.getWorld(), location.getX()-xSign*0.5, location.getY()-ySign*0.5, location.getZ()-zSign*0.5);
+    }
+    public static Location divideByScalar(Location location, int num){
+        location.setX(location.getX()/num);
+        location.setY(location.getY()/num);
+        location.setZ(location.getZ()/num);
+        return location;
+    }
 }
