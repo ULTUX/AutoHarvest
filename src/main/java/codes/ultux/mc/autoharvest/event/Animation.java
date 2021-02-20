@@ -3,12 +3,7 @@ package codes.ultux.mc.autoharvest.event;
 import codes.ultux.mc.autoharvest.Tree;
 import codes.ultux.mc.autoharvest.util.DataProvider;
 import codes.ultux.mc.autoharvest.Main;
-<<<<<<< HEAD
 import codes.ultux.mc.autoharvest.util.TreeUtils;
-=======
-import codes.ultux.mc.autoharvest.Tree;
-import codes.ultux.mc.autoharvest.util.LootGenerator;
->>>>>>> 9efdd5d603fa35914b2a7c2eafbfcefb4eb53d81
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -20,11 +15,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-import sun.util.resources.cldr.vi.TimeZoneNames_vi;
-
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
