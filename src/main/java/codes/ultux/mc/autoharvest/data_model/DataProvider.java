@@ -1,11 +1,10 @@
-package codes.ultux.mc.autoharvest.util;
+package codes.ultux.mc.autoharvest.data_model;
 
 import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
 public class DataProvider {
 

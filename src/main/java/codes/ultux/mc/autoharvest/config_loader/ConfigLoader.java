@@ -1,4 +1,4 @@
-package codes.ultux.mc.autoharvest.util;
+package codes.ultux.mc.autoharvest.config_loader;
 
 import codes.ultux.mc.autoharvest.Main;
 import org.bukkit.configuration.file.FileConfiguration;

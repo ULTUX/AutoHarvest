@@ -1,7 +1,7 @@
 package codes.ultux.mc.autoharvest;
 
 import codes.ultux.mc.autoharvest.exception.TreeNotFoundException;
-import codes.ultux.mc.autoharvest.util.DataProvider;
+import codes.ultux.mc.autoharvest.data_model.DataProvider;
 import codes.ultux.mc.autoharvest.util.TreeUtils;
 import org.bukkit.Axis;
 import org.bukkit.Material;

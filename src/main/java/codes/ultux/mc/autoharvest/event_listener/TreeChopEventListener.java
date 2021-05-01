@@ -1,6 +1,5 @@
-package codes.ultux.mc.autoharvest.event;
+package codes.ultux.mc.autoharvest.event_listener;
 
-import codes.ultux.mc.autoharvest.Config;
 import codes.ultux.mc.autoharvest.Main;
 import codes.ultux.mc.autoharvest.Tree;
 import codes.ultux.mc.autoharvest.util.LootGenerator;
@@ -26,7 +25,7 @@ public class TreeChopEventListener implements Listener {
             if (choppedTree != null){
 
                 new Animation(choppedTree, event.getPlayer().getLocation());
-                LootGenerator.getTreeLoot().forEach(itemStack -> {
+                LootGenerator.getTreeLoot(event.getBlock()).forEach(itemStack -> {
                     event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), itemStack);
                 });
             }

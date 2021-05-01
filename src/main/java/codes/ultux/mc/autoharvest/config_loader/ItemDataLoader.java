@@ -1,20 +1,22 @@
-package codes.ultux.mc.autoharvest.util;
+package codes.ultux.mc.autoharvest.config_loader;
 
 import codes.ultux.mc.autoharvest.Main;
-import codes.ultux.mc.autoharvest.dataModels.ItemData;
+import codes.ultux.mc.autoharvest.data_model.ItemData;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class ItemDataLoader {
     private FileConfiguration configSection;
@@ -57,6 +59,8 @@ public class ItemDataLoader {
         }
     }
 
+
+
     void loadItemData() {
         ConfigurationSection itemSection = configSection.getConfigurationSection(itemsSectionName);
         HashMap<ItemStack, HashMap<String, Double>> treeItems = new HashMap<>();
@@ -72,7 +76,7 @@ public class ItemDataLoader {
                     float chance = 0;
                     Integer minLevel = null;
                     Integer maxLevel = null;
-                    ArrayList<Enchantment> enchantments = new ArrayList<>();
+                    HashMap<Enchantment, Integer> enchantments = new HashMap<>();
                     ArrayList<Biome> biomeList = new ArrayList<>();
                     String customName = null;
                     List<String> lore = new ArrayList<>();
@@ -86,27 +90,29 @@ public class ItemDataLoader {
                             List<String> biomeStringList = item.getStringList("biomes");
                             biomeStringList.forEach(s1 -> {
                                 try {
-                                    Biome biome = Biome.valueOf(s1);
+                                    Biome biome = Biome.valueOf(s1.toUpperCase());
                                     biomeList.add(biome);
                                 } catch (IllegalArgumentException | NullPointerException ignored){}
                             });
                         }
-                        if (item.isSet("customName")){
-                            customName = item.getString(item.getString("customName"));
+                        if ((customName = item.getString("customName")) != null){
+                            customName = ChatColor.translateAlternateColorCodes('&', customName);
                         }
                         if (item.isSet("enchants")){
-                            item.getStringList("enchants").forEach(s1 -> {
-                                Enchantment enchant;
-                                if ((enchant = Enchantment.getByName(s1)) != null){
-                                    enchantments.add(enchant);
+                            ConfigurationSection section = item.getConfigurationSection("enchants");
+                            section.getKeys(false).forEach(s1 -> {
+                                int level = section.getInt(s1);
+                                if (level > 0){
+                                    enchantments.put(Enchantment.getByKey(NamespacedKey.minecraft(s1)), level);
                                 }
+
                             });
                         }
                         if (item.isSet("lore")){
                             List <String> loreList = item.getStringList("lore");
-                            lore = loreList;
+                            lore = loreList.stream().map(s1 -> ChatColor.translateAlternateColorCodes('&', s1)).collect(Collectors.toList());
                         }
-                        ItemData createdItemData = new ItemData(itemType, minAmount, maxAmount, chance, minLevel, maxLevel, enchantments, biomeList, itemName, lore);
+                        ItemData createdItemData = new ItemData(itemType, minAmount, maxAmount, chance, minLevel, maxLevel, enchantments, biomeList, customName, lore);
                         itemData.add(createdItemData);
                     }
 
@@ -116,4 +122,9 @@ public class ItemDataLoader {
         }
 
     }
+
+    public ArrayList<ItemData> getItemData() {
+        return itemData;
+    }
+
 }
