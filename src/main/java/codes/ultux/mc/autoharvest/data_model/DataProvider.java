@@ -59,7 +59,6 @@ public class DataProvider {
         ArrayList<Material> groundMaterials = new ArrayList<>();
         groundMaterials.add(Material.DIRT);
         groundMaterials.add(Material.GRASS_BLOCK);
-        groundMaterials.add(Material.GRASS_PATH);
         groundMaterials.add(Material.PODZOL);
         return groundMaterials;
     }

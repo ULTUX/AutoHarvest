@@ -4,16 +4,16 @@ import codes.ultux.mc.autoharvest.Tree;
 import codes.ultux.mc.autoharvest.data_model.DataProvider;
 import codes.ultux.mc.autoharvest.Main;
 import codes.ultux.mc.autoharvest.util.TreeUtils;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.loot.LootContext;
+import org.bukkit.loot.LootTable;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import java.util.*;
@@ -122,14 +122,22 @@ public class Animation implements Listener {
     public void onBlockChange (EntityChangeBlockEvent event){
         if (event.getEntity() instanceof FallingBlock && currentBlockAnimations.contains(event.getEntity())) {
             currentBlockAnimations.remove(event.getEntity());
-            event.setCancelled(true);
+            Material prevBlockType = event.getBlock().getType();
+            Bukkit.getScheduler().scheduleSyncDelayedTask(Main.instance, () -> {
+                if (event.getBlock().getType() != prevBlockType) event.getBlock().breakNaturally();
+                else if (Tree.allLogTypes.contains(event.getTo())) event.getBlock().getWorld().
+                        dropItemNaturally(event.getBlock().getLocation(), new ItemStack(tree.getTrunkType()));
+            }, 1);
 
             if (DataProvider.getAllLeafTypes().contains(event.getTo())) {
                 event.getBlock().getLocation().getWorld().playSound(event.getBlock().getLocation(), Sound.BLOCK_GRASS_BREAK, 0.1f, 0.8f);
-                event.getBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, event.getBlock().getLocation().add(0.5, 0.5, 0.5), 20, 1, 0.1, 0.1, 0.1, event.getBlockData());
-            } else if (DataProvider.getAllLogTypes().contains(event.getTo())) {
-                event.getBlock().getLocation().getWorld().playSound(event.getBlock().getLocation(), Sound.BLOCK_WOOD_BREAK, 0.1f, 0.8f);
-                event.getBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, event.getBlock().getLocation().add(0.5, 0.5, 0.5), 20, 1, 0.1, 0.1, 0.1, event.getBlockData());
+                for (int i = 0; i < 4; i++){
+                    event.getBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, event.getBlock().getLocation().add(0.5, 0.5, 0.5), 20, 1, 0.1, 0.1, 0.1, event.getBlockData());
+                }            } else if (DataProvider.getAllLogTypes().contains(event.getTo())) {
+                event.getBlock().getLocation().getWorld().playSound(event.getBlock().getLocation(), Sound.BLOCK_WOOD_BREAK, 1f, 0.7f);
+                for (int i = 0; i < 4; i++){
+                    event.getBlock().getWorld().spawnParticle(Particle.BLOCK_CRACK, event.getBlock().getLocation().add(0.5, 0.5, 0.5), 20, 1, 0.1, 0.1, 0.1, event.getBlockData());
+                }
             }
 
         }

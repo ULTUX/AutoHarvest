@@ -3,6 +3,10 @@ package codes.ultux.mc.autoharvest.util;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,5 +83,24 @@ public class TreeUtils {
         location.setY(location.getY()/num);
         location.setZ(location.getZ()/num);
         return location;
+    }
+
+    public static void damageTool(Player player){
+        Damageable itemMeta = (Damageable) player.getInventory().getItemInMainHand().getItemMeta();
+        if (itemMeta != null) {
+            if (itemMeta.hasEnchant(Enchantment.DURABILITY)) {
+                if (Math.random() <= 1f / (((ItemMeta) itemMeta).getEnchantLevel(Enchantment.DURABILITY) + 1)) {
+                    itemMeta.setDamage(itemMeta.getDamage() + 1);
+                }
+            } else {
+                itemMeta.setDamage(itemMeta.getDamage() + 1);
+            }
+        }
+        if (itemMeta != null) {
+            if (itemMeta.getDamage() > player.getInventory().getItemInMainHand().getType().getMaxDurability())
+                player.getInventory().setItemInMainHand(null);
+            else player.getInventory().getItemInMainHand().setItemMeta(itemMeta);
+        }
+        player.updateInventory();
     }
 }

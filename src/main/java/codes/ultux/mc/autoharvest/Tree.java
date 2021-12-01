@@ -45,14 +45,24 @@ public class Tree {
     /**
      * Try to find a tree at given block.
      */
+
+    private final Material trunkType;
+
     private Tree(Block block) throws TreeNotFoundException {
         if (allLogTypes.contains(block.getType())){
+            trunkType = block.getType();
             getAllTrunkBlocks(block);
             searchForTree();
             findLeaves();
         }
         else throw new TreeNotFoundException("That trunk block is not a trunk.");
     }
+
+    public Material getTrunkType() {
+        return trunkType;
+    }
+
+
 
     /**
      * Factory function, only way to get Tree instance.
@@ -113,9 +123,9 @@ public class Tree {
         }
 
         if (diagonalTrunkBlock != null){
-            logger.info("Found diagonal trunk block - the tree could be 2x2.");
+            //logger.info("Found diagonal trunk block - the tree could be 2x2.");
             if (block.getRelative(0, 0, zi).getType().equals(block.getType()) && block.getRelative(xi, 0, 0).getType().equals(block.getType())){
-                logger.info("This tree IS 2x2.");
+                //logger.info("This tree IS 2x2.");
                 ArrayList<Block> possibleTrunkBlocks = new ArrayList<>();
                 possibleTrunkBlocks.add(block.getRelative(0, 0, zi));
                 possibleTrunkBlocks.add(block.getRelative(xi, 0, 0));
