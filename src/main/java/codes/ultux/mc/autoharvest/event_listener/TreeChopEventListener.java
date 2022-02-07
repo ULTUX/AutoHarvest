@@ -23,7 +23,9 @@ public class TreeChopEventListener implements Listener {
         Player player = event.getPlayer();
         if ((player.hasPermission("autoharvest.choptree") || player.isOp()) &&
                 player.getInventory().getItemInMainHand().getType().toString().contains("AXE")){
-            Tree choppedTree = Tree.getTree(event.getBlock());
+            try {
+                Tree choppedTree = Tree.getTree(event.getBlock());
+
             if (choppedTree != null){
                 for (int i = 0; i < choppedTree.getLogs().size(); i++)
                     TreeUtils.damageTool(player);
@@ -33,6 +35,8 @@ public class TreeChopEventListener implements Listener {
 
 
             }
+            }
+            catch(Exception ignored){}
         }
     }
 

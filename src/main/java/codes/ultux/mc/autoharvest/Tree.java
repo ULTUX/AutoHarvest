@@ -73,7 +73,7 @@ public class Tree {
         try {
             return new Tree(block);
         } catch (TreeNotFoundException e) {
-            logger.info(e.getMessage());
+//            logger.info(e.getMessage());
         }
         return null;
     }
